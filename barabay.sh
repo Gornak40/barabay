@@ -27,7 +27,8 @@ getval(){
 # {{<spaces>key<spaces>}} -> value
 # text,key,value
 repl2(){
-	local t=$(awk '{ gsub("{{[[:space:]]*'"$2"'[[:space:]]*}}", "'"$3"'"); print }' <<< "$1")
+	local t=$(awk -v value="$3" \
+		'{ gsub("{{[[:space:]]*'"$2"'[[:space:]]*}}", value); print }' <<< "$1")
 	echo -E "$t"
 }
 
@@ -47,19 +48,16 @@ case "$p" in
 			ft=$(cat "$v")
 			fs="$ft"
 		else
-			if [[ -z "$fs" ]]; then
+			if [[ -z "$fn" ]]; then
 				t=$(repl2 "$t" "$k" "$v")
 			else
 				fs=$(repl2 "$fs" "$k" "$v")
 			fi
 		fi
 		;;
-	"")
-		if [[ ! -z "$fn" ]]; then
-			echo > /dev/null
-			# TODO: fix this :(
-			# t=$(repl2 "$t" "$fn" "$fs")
-		fi
+	"@.")
+		t=$(repl2 "$t" "$fn" "$fs\n{{ $fn }}")
+		fs="$ft"
 		;;
 	*)
 		# nothing interesting here
@@ -67,5 +65,8 @@ case "$p" in
 esac
 
 done
+
+# TODO: do it more carefully
+t=$(repl2 "$t" "@.*" "")
 
 cat <<< "$t"
