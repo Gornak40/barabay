@@ -93,6 +93,7 @@ cat params.cfg | ./barabay.sh index.html
 	<p>Gorilla is gorgeous</p>
 	<img src="/static/img/east.png">
 </div>
+
 	</div>
 </body>
 ```
